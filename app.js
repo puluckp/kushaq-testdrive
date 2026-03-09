@@ -8,7 +8,7 @@
 // ──────────────────────────────────────────────────
 const CONFIG = {
   // Path to your GLB/GLTF file (relative to index.html)
-  modelPath: 'assets/kushaq.glb',
+  modelPath: 'assets/model.glb',
 
   // Model adjustments — tweak these after loading
   modelScale: 1,          // scale multiplier (try 0.01 if model is huge)
