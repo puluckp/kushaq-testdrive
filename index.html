@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ŠKODA KUSHAQ 2026 | Virtual Test Drive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════ LOADING SCREEN ═══════ -->
+<div class="loader" id="loader">
+  <div class="loader-inner">
+    <div class="loader-logo">
+      <svg viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="29" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/><text x="30" y="34" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="Outfit" font-size="9" font-weight="300" letter-spacing="3">ŠKODA</text></svg>
+    </div>
+    <h2>KUSHAQ 2026</h2>
+    <p class="loader-sub">Loading Virtual Experience</p>
+    <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+    <p class="loader-pct" id="loaderPct">0%</p>
+  </div>
+</div>
+
+<!-- ═══════ OPENING SCREEN ═══════ -->
+<div class="opening" id="opening" style="display:none">
+  <div class="opening-inner">
+    <p class="opening-tag">Virtual Test Drive</p>
+    <h1 class="opening-title">ŠKODA KUSHAQ<br><i>2026 Facelift</i></h1>
+    <p class="opening-sub">Monte Carlo & Prestige — Experience Every Detail</p>
+    <button class="opening-btn" id="startBtn">
+      <span>Begin Experience</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════ MAIN EXPERIENCE ═══════ -->
+<div class="main" id="main" style="display:none">
+
+  <!-- 3D CANVAS -->
+  <section class="canvas-section" id="canvasSection">
+    <canvas id="threeCanvas"></canvas>
+    
+    <!-- Overlay UI on canvas -->
+    <div class="canvas-overlay">
+      <div class="canvas-top">
+        <p class="canvas-tag">360° Interactive</p>
+        <h2 class="canvas-title">Explore the Kushaq</h2>
+        <p class="canvas-hint" id="canvasHint">Drag to rotate · Pinch to zoom</p>
+      </div>
+    </div>
+
+    <!-- Camera angle presets -->
+    <div class="cam-presets" id="camPresets">
+      <button class="cam-btn active" data-cam="hero" onclick="setCam('hero')">Hero</button>
+      <button class="cam-btn" data-cam="front" onclick="setCam('front')">Front</button>
+      <button class="cam-btn" data-cam="side" onclick="setCam('side')">Side</button>
+      <button class="cam-btn" data-cam="rear" onclick="setCam('rear')">Rear</button>
+      <button class="cam-btn" data-cam="top" onclick="setCam('top')">Top</button>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE CONTROLS -->
+  <section class="controls">
+    <div class="controls-inner">
+      <p class="section-tag">Interactive Features</p>
+      <h2 class="section-heading">Touch. Feel. <i>Experience.</i></h2>
+
+      <div class="actions">
+        <div class="action-btn" id="btnEngine" onclick="toggleEngine()">
+          <div class="action-status"></div>
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="4"/></svg>
+          </div>
+          <span class="action-label">Engine</span>
+          <div class="wave" id="waveEngine"><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+
+        <div class="action-btn" id="btnLights" onclick="toggleLights()">
+          <div class="action-status"></div>
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 017 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 01-2 2h-4a2 2 0 01-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 017-7z"/><path d="M9 21h6"/></svg>
+          </div>
+          <span class="action-label">Lights</span>
+        </div>
+
+        <div class="action-btn" id="btnDoor" onclick="toggleDoor()">
+          <div class="action-status"></div>
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+          </div>
+          <span class="action-label">Door</span>
+          <div class="wave" id="waveDoor"><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+
+        <div class="action-btn" id="btnSunroof" onclick="toggleSunroof()">
+          <div class="action-status"></div>
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <span class="action-label">Sunroof</span>
+        </div>
+
+        <div class="action-btn" id="btnAmbient" onclick="toggleAmbient()">
+          <div class="action-status"></div>
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-1 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/><circle cx="7.5" cy="11.5" r="1.5"/><circle cx="10.5" cy="7.5" r="1.5"/><circle cx="16.5" cy="11.5" r="1.5"/></svg>
+          </div>
+          <span class="action-label">Ambient</span>
+        </div>
+
+        <div class="action-btn" id="btnHorn" onclick="tapHorn()">
+          <div class="action-status"></div>
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg>
+          </div>
+          <span class="action-label">Horn</span>
+          <div class="wave" id="waveHorn"><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+      </div>
+
+      <!-- AMBIENT COLORS -->
+      <div class="ambient-strip" id="ambientStrip">
+        <div class="amb-dot sel" style="background:#4DB848;color:#4DB848" onclick="setAmbColor('green',this)"></div>
+        <div class="amb-dot" style="background:#60C0E0;color:#60C0E0" onclick="setAmbColor('ice',this)"></div>
+        <div class="amb-dot" style="background:#F0A030;color:#F0A030" onclick="setAmbColor('amber',this)"></div>
+        <div class="amb-dot" style="background:#FFF0D0;color:#FFF0D0" onclick="setAmbColor('warm',this)"></div>
+        <div class="amb-dot" style="background:#E03040;color:#E03040" onclick="setAmbColor('crimson',this)"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECS -->
+  <section class="specs-section">
+    <div class="specs-inner">
+      <div class="specs">
+        <div class="spec"><div class="spec-val">150</div><div class="spec-lbl">PS Power</div></div>
+        <div class="spec"><div class="spec-val">250</div><div class="spec-lbl">Nm Torque</div></div>
+        <div class="spec"><div class="spec-val">1.5L</div><div class="spec-lbl">TSI Turbo</div></div>
+        <div class="spec"><div class="spec-val">6</div><div class="spec-lbl">Airbags</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <h2>Ready to <i>drive</i> one home?</h2>
+    <button class="cta-button" onclick="toast('Redirecting to Škoda India…')">
+      Book a Test Drive
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+    <p class="cta-note">Available at your nearest ŠKODA showroom</p>
+  </section>
+
+  <footer>ŠKODA KUSHAQ 2026 · Virtual Test Drive Experience</footer>
+</div>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
