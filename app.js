@@ -10,31 +10,39 @@ const CONFIG = {
   // Path to your GLB/GLTF file (relative to index.html)
   modelPath: 'model.glb',
 
-  // Model adjustments — tweak these after loading
-  modelScale: 1,          // scale multiplier (try 0.01 if model is huge)
-  modelRotationY: 0,      // initial Y rotation in degrees
-  modelPositionY: 0,      // vertical offset (negative = lower)
+  // Model adjustments
+  modelScale: 1,
+  modelRotationY: 90,       // rotate so front faces camera
+  modelPositionY: 0,
 
-  // If your model has named parts, put the mesh names here
-  // Open browser console after loading to see all mesh names logged
+  // Mapped mesh names from the actual Kushaq model
   meshNames: {
-    doorFL: '',     // e.g. 'Door_FL' or 'driver_door'
-    doorFR: '',
-    sunroof: '',    // e.g. 'Sunroof_Glass'
-    headlightL: '', // e.g. 'Headlight_L'
-    headlightR: '',
-    taillightL: '',
-    taillightR: '',
-    interior: '',   // for ambient lighting
+    doorFL: 'door_interior144',          // driver door exterior
+    doorFR: 'door_interior144003',       // passenger door
+    sunroofExt: 'Plane020',              // EXT_ROOF_OPEN_GLASS
+    sunroofInt: 'Plane037',              // INT_ROOF_OPEN_GLASS
+    headlightL: 'Plane009',             // EXT_Head_light_glow
+    headlightR: 'Plane032',             // EXT_Head_light_glow
+    headlightGlassL: 'Plane013',        // Ext_Headlight_Glass
+    headlightGlassR: 'Plane027',        // Ext_Headlight_Glass
+    taillightGlowL: 'Plane002',         // tail_lamp_Tex_glow
+    taillightGlowR: 'Plane004',         // tail_lamp_Tex_glow
+    taillightRedL: 'polySurface9',      // TL_COVER_RED
+    taillightRedR: 'polySurface3451001', // TL_COVER_RED
+    body: 'kushaq_ext_body8001',        // main body - EXT_carpanit
+    infotainment: 'Plane136',           // infotainment screen
+    steeringLogo: 'DSAAD12604',         // steering wheel
+    interior: '',
   },
 
-  // Camera positions
+  // Camera positions (adjusted for auto-scaled model ~0.01)
   cameras: {
-    hero:  { x: 4.5, y: 2.0, z: 4.5 },
-    front: { x: 0,   y: 1.5, z: 6 },
-    side:  { x: 6,   y: 1.5, z: 0 },
-    rear:  { x: 0,   y: 1.5, z: -6 },
-    top:   { x: 0,   y: 7,   z: 0.1 },
+    hero:  { x: 3.5, y: 1.8, z: 3.5 },
+    front: { x: 0,   y: 1.2, z: 5 },
+    side:  { x: 5,   y: 1.2, z: 0 },
+    rear:  { x: 0,   y: 1.2, z: -5 },
+    top:   { x: 0,   y: 5,   z: 0.1 },
+    interior: { x: 0, y: 1.0, z: 0.3 },
   }
 };
 
@@ -71,7 +79,7 @@ function initThree() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
+  renderer.toneMappingExposure = 2.0;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -80,21 +88,21 @@ function initThree() {
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
   controls.enablePan = false;
-  controls.minDistance = 3;
+  controls.minDistance = 1.5;
   controls.maxDistance = 12;
-  controls.minPolarAngle = 0.3;
-  controls.maxPolarAngle = Math.PI / 2.05; // prevent going under ground
+  controls.minPolarAngle = 0.2;
+  controls.maxPolarAngle = Math.PI / 2.05;
   controls.target.set(0, 0.8, 0);
   controls.autoRotate = false;
   controls.autoRotateSpeed = 0.5;
 
-  // ── Lights ──
-  // Ambient
-  ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+  // ── Lights — Studio Setup (bright) ──
+  // Ambient — raised for overall visibility
+  ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
   scene.add(ambientLight);
 
-  // Key light (main studio light — top right)
-  dirLight1 = new THREE.DirectionalLight(0xffffff, 1.0);
+  // Key light (main studio light — top right, bright)
+  dirLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
   dirLight1.position.set(5, 8, 3);
   dirLight1.castShadow = true;
   dirLight1.shadow.mapSize.set(2048, 2048);
@@ -106,18 +114,23 @@ function initThree() {
   dirLight1.shadow.camera.bottom = -5;
   scene.add(dirLight1);
 
-  // Fill light (softer, from left)
-  dirLight2 = new THREE.DirectionalLight(0xc0d8ff, 0.4);
+  // Fill light (from left)
+  dirLight2 = new THREE.DirectionalLight(0xc0d8ff, 0.8);
   dirLight2.position.set(-4, 4, -2);
   scene.add(dirLight2);
 
-  // Rim light (behind, for edge highlight)
-  fillLight = new THREE.DirectionalLight(0x4DB848, 0.15);
+  // Back light (from behind, for rim/edge highlight)
+  fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
   fillLight.position.set(0, 3, -6);
   scene.add(fillLight);
 
-  // Ground bounce light
-  groundLight = new THREE.HemisphereLight(0x111411, 0x050807, 0.2);
+  // Front fill light
+  var frontFill = new THREE.DirectionalLight(0xffffff, 0.5);
+  frontFill.position.set(0, 2, 6);
+  scene.add(frontFill);
+
+  // Ground bounce light — hemisphere
+  groundLight = new THREE.HemisphereLight(0xffffff, 0x333333, 0.5);
   scene.add(groundLight);
 
   // ── Ground plane ──
@@ -523,12 +536,35 @@ function toggleLights() {
   haptic('light');
   document.getElementById('btnLights').classList.toggle('on', state.lights);
 
-  // Toggle 3D lights
+  // Toggle 3D spot/point lights
   const intensity = state.lights ? 2 : 0;
   headlightsL.intensity = intensity;
   headlightsR.intensity = intensity;
   taillightsL.intensity = state.lights ? 1.5 : 0;
   taillightsR.intensity = state.lights ? 1.5 : 0;
+
+  // Make headlight/taillight glow meshes emissive
+  if (carModel) {
+    var glowMeshes = ['Plane009','Plane032','Plane002','Plane004'];
+    var glowColor = state.lights ? new THREE.Color(2, 2, 1.8) : new THREE.Color(0, 0, 0);
+    glowMeshes.forEach(function(name) {
+      var mesh = carModel.getObjectByName(name);
+      if (mesh && mesh.material) {
+        mesh.material.emissive = glowColor;
+        mesh.material.emissiveIntensity = state.lights ? 1.5 : 0;
+      }
+    });
+    // Red glow for taillights
+    var tailMeshes = ['polySurface9','polySurface3451001','Plane162','Plane165'];
+    var redGlow = state.lights ? new THREE.Color(1.5, 0.1, 0.1) : new THREE.Color(0, 0, 0);
+    tailMeshes.forEach(function(name) {
+      var mesh = carModel.getObjectByName(name);
+      if (mesh && mesh.material) {
+        mesh.material.emissive = redGlow;
+        mesh.material.emissiveIntensity = state.lights ? 1.2 : 0;
+      }
+    });
+  }
 
   toast(state.lights ? 'LED DRL & Headlights on' : 'Lights off');
 }
@@ -560,12 +596,14 @@ function toggleSunroof() {
   document.getElementById('btnSunroof').classList.toggle('on', state.sunroof);
   sndSunroof();
 
-  // Try to animate sunroof mesh
-  if (CONFIG.meshNames.sunroof && carModel) {
-    const sr = carModel.getObjectByName(CONFIG.meshNames.sunroof);
-    if (sr) {
-      animateMeshPosition(sr, 'z', state.sunroof ? -0.3 : 0, 800);
-    }
+  // Animate both exterior and interior sunroof glass
+  if (carModel) {
+    ['Plane020','Plane037','Plane028','Plane048'].forEach(function(name) {
+      var sr = carModel.getObjectByName(name);
+      if (sr) {
+        animateMeshPosition(sr, 'y', state.sunroof ? 0.15 : 0, 800);
+      }
+    });
   }
 
   toast(state.sunroof ? 'Sunroof open — feel the sky' : 'Sunroof closed');
